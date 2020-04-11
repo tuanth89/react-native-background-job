@@ -53,7 +53,7 @@ public class ReactNativeEventStarter {
     public void onCreate() {
       super.onCreate();
 
-      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
         Context mContext = this.getApplicationContext();
         String CHANNEL_ID = "Background job";
 
@@ -72,7 +72,7 @@ public class ReactNativeEventStarter {
                         .build();
 
         startForeground(1, notification);
-      }
+//       }
     }
 
     @Nullable @Override protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
