@@ -56,14 +56,10 @@ public class ReactNativeEventStarter {
     public void onCreate() {
       super.onCreate();
 
-      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
         Context mContext = this.getApplicationContext();
-//         String CHANNEL_ID = "Background job";
-
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_LOW);
         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
-
-
 
 //         Notification notification =
 //                 new Notification.Builder(mContext, CHANNEL_ID)
@@ -75,14 +71,14 @@ public class ReactNativeEventStarter {
 //         startForeground(1, notification);
       }
 
-  SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_KEY, MODE_PRIVATE);
+  SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_KEY, Context.MODE_PRIVATE);
         String contextTitle = preferences.getString(CONTEXT_TITLE_SETTING, "Running in background...");
         String contextText = preferences.getString(CONTEXT_TEXT_SETTING, "Background job");
 
       // Create the notification
 //               final Intent notificationIntent = new Intent(this, ReactActivity.class);
 //               final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-              final Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+              final Notification notification = new NotificationCompat.Builder(mContext, CHANNEL_ID)
                       .setContentTitle(contextTitle)
                       .setContentText(contextText)
                       .setSmallIcon(R.mipmap.ic_launcher)
