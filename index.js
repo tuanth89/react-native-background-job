@@ -115,6 +115,12 @@ const BackgroundJob = {
           `${tag} The job ${jobKey} has not been registered, you must register it before you can schedule it.`
         );
       } else {
+        if(!override)
+        {
+          resolve("Job existed");
+        }
+        else
+        {
         jobModule.schedule(
           jobKey,
           timeout,
@@ -137,6 +143,7 @@ const BackgroundJob = {
             }
           }
         );
+        }
       }
     });
   },

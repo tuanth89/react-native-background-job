@@ -2,11 +2,9 @@ package com.pilloxa.backgroundjob;
 
 import android.content.Context;
 import android.content.Intent;
-import android.app.PendingIntent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationCompat;
 import android.util.Log;
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.ReactApplication;
@@ -27,8 +25,6 @@ public class ReactNativeEventStarter {
   private static final String CONTEXT_TITLE_SETTING = "CONTEXT_TITLE_SETTING";
   private static final String CONTEXT_TEXT_SETTING = "CONTEXT_TEXT_SETTING";
   private static final String SETTINGS_KEY = "Background_Job_Settings";
- private static final String CHANNEL_ID = "RN_BACKGROUND_ACTIONS_CHANNEL";
-    private static final int SERVICE_NOTIFICATION_ID = 92901;
 
   public ReactNativeEventStarter(@NonNull Context context) {
     this.context = context;
@@ -57,79 +53,27 @@ public class ReactNativeEventStarter {
     public void onCreate() {
       super.onCreate();
 
+      if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
         Context mContext = this.getApplicationContext();
-//       if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//         NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_LOW);
-//         ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
-//
-// //         Notification notification =
-// //                 new Notification.Builder(mContext, CHANNEL_ID)
-// //                         .setContentTitle(contextTitle)
-// //                         .setContentText(contextText)
-// //                         .setSmallIcon(R.drawable.ic_notification)
-// //                         .build();
-// //
-// //         startForeground(1, notification);
-//       }
+        String CHANNEL_ID = "Background job";
 
-  SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_KEY, Context.MODE_PRIVATE);
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, CHANNEL_ID, NotificationManager.IMPORTANCE_LOW);
+        ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+
+        SharedPreferences preferences = mContext.getSharedPreferences(SETTINGS_KEY, MODE_PRIVATE);
         String contextTitle = preferences.getString(CONTEXT_TITLE_SETTING, "Running in background...");
         String contextText = preferences.getString(CONTEXT_TEXT_SETTING, "Background job");
- createNotificationChannel(contextTitle, contextText);
-      // Create the notification
-              final Intent notificationIntent = new Intent(this, ReactActivity.class);
-              final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-              final Notification notification = new NotificationCompat.Builder(mContext, CHANNEL_ID)
-                      .setContentTitle(contextTitle)
-                      .setContentText(contextText)
-                      .setSmallIcon(R.drawable.ic_notification)
-                      .setContentIntent(contentIntent)
-                      .setOngoing(true)
-                      .setPriority(NotificationCompat.PRIORITY_MIN)
-//                       .setColor(color)
-                      .build();
 
-                      startForeground(1, notification);
+        Notification notification =
+                new Notification.Builder(mContext, CHANNEL_ID)
+                        .setContentTitle(contextTitle)
+                        .setContentText(contextText)
+                        .setSmallIcon(R.drawable.ic_notification)
+                        .build();
 
+        startForeground(1, notification);
+      }
     }
-
-    @Override
-        public int onStartCommand(Intent intent, int flags, int startId) {
-            final Bundle extras = intent.getExtras();
-            if (extras == null) {
-                throw new IllegalArgumentException("Extras cannot be null");
-            }
-            // Get info
-            final String taskTitle = extras.getString(CONTEXT_TITLE_SETTING, "Running in background...");
-            final String taskDesc = extras.getString(CONTEXT_TEXT_SETTING, "Background job");
-
-            // Turning into a foreground service
-            createNotificationChannel(taskTitle, taskDesc); // Necessary creating channel for API 26+
-            // Create the notification
-//             final Intent notificationIntent = new Intent(this, ReactActivity.class);
-//             final PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
-            final Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle(taskTitle)
-                    .setContentText(taskDesc)
-//                     .setSmallIcon(iconInt)
-//                     .setContentIntent(contentIntent)
-                    .setOngoing(true)
-                    .setPriority(NotificationCompat.PRIORITY_MIN)
-//                     .setColor(color)
-                    .build();
-            startForeground(SERVICE_NOTIFICATION_ID, notification);
-            return super.onStartCommand(intent, flags, startId);
-        }
-
-          private void createNotificationChannel(@NonNull final String taskTitle, @NonNull final String taskDesc) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    final int importance = NotificationManager.IMPORTANCE_LOW;
-                    final NotificationChannel channel = new NotificationChannel(CHANNEL_ID, taskTitle, importance);
-                    channel.setDescription(taskDesc);
-                    final NotificationManager notificationManager = getSystemService(NotificationManager.class);
-                    notificationManager.createNotificationChannel(channel);
-                }
-            }
 
     @Nullable @Override protected HeadlessJsTaskConfig getTaskConfig(Intent intent) {
       Log.d(LOG_TAG, "getTaskConfig() called with: intent = [" + intent + "]");
